@@ -1,0 +1,15 @@
+(round || oblong) && (diameterabove4) => vines
+round && diameterbelow4 => tree
+(long || round) && (green || yellow) => banana
+vines && green => watermelon
+vines && smooth && yellow => honeydew
+vines && rough && tan => cantaloupe
+(green || yellow || red) && tree && multiple => apple
+orange && tree && stonefruit => apricot
+red && tree && stonefruit => cherry
+orange && tree && multiple => orange
+orange && tree && stonefruit => peach
+purple && tree && stonefruit => plume
+countseedabove1 => multiple
+countseedbelow1 => stone fruit
+vines && a && tan => b
