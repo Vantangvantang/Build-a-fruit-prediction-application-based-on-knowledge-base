@@ -11,5 +11,5 @@ orange && tree && multiple => orange
 orange && tree && stonefruit => peach
 purple && tree && stonefruit => plume
 countseedabove1 => multiple
-countseedbelow1 => stone fruit
+countseedbelow1 => stonefruit
 vines && a && tan => b

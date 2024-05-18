@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from durable.lang import *
 import random
-
+import BackwardChaining as BC
 
 class FruitPredictor:
     def __init__(self, root):
@@ -75,7 +75,7 @@ class FruitPredictor:
         tk.Label(root, text="Fruit").grid(row=1, column=2)
         self.backward_fruit_var = tk.StringVar()
         self.backward_fruit_menu = ttk.Combobox(root, textvariable=self.backward_fruit_var, state="readonly")
-        self.backward_fruit_menu['values'] = ("Banana", "Watermelon", "Honeydew", "Cantaloupe", "Apple", "Apricot", "Cherry", "Orange", "Peach", "Plume")
+        self.backward_fruit_menu['values'] = ("Banana", "Watermelon", "Honeydew", "Cantaloupe", "Apple", "Apricot", "Cherry", "Orange", "Peach", "Plume", "b")
         self.backward_fruit_menu.grid(row=1, column=3)
 
         self.backward_steps_text = tk.Text(root, width=40, height=10, state="disabled")
@@ -136,11 +136,25 @@ class FruitPredictor:
         self.generate_random_fruit()
 
     def display_backward_steps(self, event):
-        selected_fruit = self.backward_fruit_var.get()
-        steps = f"Displaying steps for {selected_fruit} (This part needs to be implemented)"
+        selected_fruit = self.backward_fruit_var.get().strip().lower()
+        goal = selected_fruit
+
+        goal_list, num_back, VET = BC.excute_backward_chaining(goal, BC.rules)
+        # Xóa nội dung hiện có trong Text widget
         self.backward_steps_text.config(state="normal")
         self.backward_steps_text.delete("1.0", tk.END)
-        self.backward_steps_text.insert(tk.END, steps)
+
+        # Thêm giá trị của num_back và VET
+        self.backward_steps_text.insert(tk.END, f"\nnum_back: {num_back}\n")
+        self.backward_steps_text.insert(tk.END, f"VET: {VET}\n")
+
+        # Thực hiện backward chaining
+        if not goal_list:
+            self.backward_steps_text.insert(tk.END, "\nResult: True")
+        else:
+            self.backward_steps_text.insert(tk.END, "\nResult: False")
+
+        # Khóa Text widget lại
         self.backward_steps_text.config(state="disabled")
 
     def clear_rules(self, ruleset_name):
@@ -264,7 +278,6 @@ with ruleset('fruit'):
     def classify_fruit(c):
         c.s.label = 'Plume'
         fruit_predictor.predicted_fruit = 'Plume'
-
 
 if __name__ == "__main__":
     root = tk.Tk()

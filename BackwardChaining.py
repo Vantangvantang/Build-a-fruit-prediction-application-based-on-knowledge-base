@@ -14,7 +14,11 @@ def split_rule(rule):
     splited_condition_list = condition.split()
     return condition, result, splited_condition_list
 
-def excute_backward_chaining(rules, goal_list, known_facts, num_back, VET):
+def excute_backward_chaining(goal, rules):
+    num_back = 0
+    goal_list = [goal]
+    VET = []
+    known_facts = ["long", "round", "oblong", "diameterabove4", "diameterbelow4", "smooth", "rough", "green", "yellow", "tan", "orange", "red", "purple", "countseedabove1", "countseedbelow1"]
     while goal_list:
         is_goal_list_changed = False            
         print(f'============== current goal_list: {goal_list} ==============')
@@ -48,21 +52,7 @@ def excute_backward_chaining(rules, goal_list, known_facts, num_back, VET):
         else:
             num_back += 1
         print(f"=> goal_list= {goal_list}\n   num_back= {num_back}\n   VET= {VET}")
-    if goal_list:
-        return False
-    if not goal_list:
-        return True        
+    return goal_list, num_back, VET       
 
 rules = read_rules("rules.txt")
 show_rules(rules)
-
-num_back = 0
-goal = "watermelon"
-goal_list = [goal]
-VET = []
-known_facts = ["long", "round", "oblong", "diameterabove4", "diameterbelow4", "smooth", "rough", "green", "yellow", "tan", "orange", "red", "purple", "countseedabove1", "countseedbelow1"]
-
-if(excute_backward_chaining(rules, goal_list, known_facts, num_back, VET) == True):
-    print(f"{goal} true")
-else:
-    print(f"{goal} false")
