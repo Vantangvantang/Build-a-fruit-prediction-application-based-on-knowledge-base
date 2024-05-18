@@ -3,6 +3,7 @@ from tkinter import ttk
 from durable.lang import *
 import random
 import BackwardChaining as BC
+from PIL import Image, ImageTk
 
 class FruitPredictor:
     def __init__(self, root):
@@ -57,17 +58,21 @@ class FruitPredictor:
         self.seed_count_menu.grid(row=7, column=1)
 
         self.predict_button = tk.Button(root, text="Predict Fruit", command=self.predict_fruit)
-        self.predict_button.grid(row=8, column=0)
+        self.predict_button.grid(row=8, column=1,sticky=tk.W+tk.E)
 
         self.reset_button = tk.Button(root, text="Reset", command=self.reset_fields)
-        self.reset_button.grid(row=8, column=1)
+        self.reset_button.grid(row=8, column=0,sticky=tk.W+tk.E)
 
-        self.selected_fruit_label = tk.Label(root, text="Fruit: ...")
-        self.selected_fruit_label.grid(row=9, column=0, columnspan=2)
+        self.selected_fruit_label = tk.Label(root, text=None)
+        self.selected_fruit_label.grid(row=30, column=0, columnspan=2)
 
-        # Fruit Mix label
-        self.random_fruit_label = tk.Label(root, text="Fruit Mix: ...")
-        self.random_fruit_label.grid(row=10, column=0, columnspan=2)
+        # Random Fruitlabel
+        self.random_fruit_label = tk.Label(root, text="Random Fruit: ...")
+        self.random_fruit_label.grid(row=31, column=0, columnspan=2)
+
+        # Notify label
+        self.notify_label = tk.Label(root, text="")
+        self.notify_label.grid(row=33, column=0, columnspan=2)
 
         # Create and place widgets for Backward Chaining
         tk.Label(root, text="Backward Chaining").grid(row=0, column=2, columnspan=2)
@@ -101,19 +106,21 @@ class FruitPredictor:
 
         # Kiểm tra các giá trị đầu vào
         if not all(fact.values()):
-            self.selected_fruit_label.config(text="Please fill in all fields.")
+            self.notify_label.config(text="Please fill in all fields.")
             return
 
         self.predicted_fruit = None
         assert_fact_with_error_check('fruit', fact)
         if self.predicted_fruit:
-            self.selected_fruit_label.config(text=f"Fruit: {self.predicted_fruit}")
+            # self.selected_fruit_label.config(text=f"Fruit: {self.predicted_fruit}")
             if self.predicted_fruit == self.random_fruit:
-                self.show_result(True)
+                self.show_result(True, self.predicted_fruit)
+                self.notify_label.config(text="")
             else:
-                self.show_result(False)
+                self.show_result(False, self.predicted_fruit)
+                self.notify_label.config(text=" ")
         else:
-            self.selected_fruit_label.config(text="Fruit: Please use another set of rules!!!!")
+            self.notify_label.config(text="Please use another set of rules!!!!")
 
     def reset_fields(self):
         self.shape_var.set('')
@@ -123,14 +130,15 @@ class FruitPredictor:
         self.seed_class_var.set('')
         self.fruit_class_var.set('')
         self.seed_count_var.set('')
-        self.selected_fruit_label.config(text="Fruit: ...")
-        self.random_fruit_label.config(text="Fruit Mix: ...")
+        self.result_label.config(text="")
+        self.selected_fruit_label.config(text=None, image = None)
+        self.selected_fruit_label.image = None
+        self.random_fruit_label.config(text="Random Fruit: ...")
         self.backward_steps_text.config(state="normal")
         self.backward_steps_text.delete("1.0", tk.END)
         self.backward_steps_text.config(state="disabled")
         self.predicted_fruit = None
         self.random_fruit = None
-        self.result_label.config(text="")
         # Thêm phần này để đảm bảo rằng rule engine cũng được reset
         self.clear_rules('fruit')
         self.generate_random_fruit()
@@ -167,13 +175,22 @@ class FruitPredictor:
     def generate_random_fruit(self):
         fruits = ["Banana", "Watermelon", "Honeydew", "Cantaloupe", "Apple", "Apricot", "Cherry", "Orange", "Peach", "Plume"]
         self.random_fruit = random.choice(fruits)
-        self.random_fruit_label.config(text=f"Fruit Mix: {self.random_fruit}")
-
-    def show_result(self, is_correct):
+        self.random_fruit_label.config(text=f"Random Fruit: {self.random_fruit}")
+        
+    def show_result(self, is_correct, predicted_fruit):
         if is_correct:
-            self.result_label.config(text="TRUE", fg="green")
+            image_path = f"images/{predicted_fruit.lower()}.png"
+            try:
+                image = Image.open(image_path)
+                image = image.resize((100, 100)) 
+                photo = ImageTk.PhotoImage(image)
+                self.selected_fruit_label.image = photo
+                self.selected_fruit_label.config(image=photo)
+            except FileNotFoundError:
+                print(f"Error: Image file not found: {image_path}")
+            self.result_label.config(text="Exactly!", fg="green")
         else:
-            self.result_label.config(text="FALSE", fg="red")
+            self.result_label.config(text="Nah, try again!", fg="red")
 
 def assert_fact_with_error_check(ruleset_name, fact):
     try:
